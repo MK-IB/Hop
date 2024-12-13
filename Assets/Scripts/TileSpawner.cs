@@ -22,7 +22,7 @@ public class TileSpawner : MonoBehaviour
     [SerializeField] private Color currentColor;
     
     [SerializeField] private List<Color> tileColors;
-    private int _colorCounter;
+    private int _colorCounter, _tilesCounter;
 
     private void Awake()
     {
@@ -79,8 +79,11 @@ public class TileSpawner : MonoBehaviour
             multiplier = xAxis == 2 ? -1 : 1;
         nextTilePosition = new Vector3(multiplier * 3.5f, -.5f, _zPosAdder);
         Transform newTile = Instantiate(tilePrefab, nextTilePosition + Vector3.up * 5, Quaternion.identity).transform;
-        Debug.Log("Tile Spawn");
-        newTile.GetComponent<TileElement>().SetColor(currentColor);
+        //Debug.Log("Tile Spawn");
+        _tilesCounter++;
+        TileElement tileElement = newTile.GetComponent<TileElement>(); 
+        tileElement.SetColor(currentColor);
+        if (_tilesCounter % 20 == 0) StartCoroutine(tileElement.EnableMovement());
         newTile.DOMove(nextTilePosition, 0.3f).SetEase(Ease.OutBack);
         _zPosAdder += 7;
     }

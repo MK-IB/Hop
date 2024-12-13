@@ -1,5 +1,6 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 namespace _Hop._Scripts.ElementRelated
@@ -17,6 +18,10 @@ namespace _Hop._Scripts.ElementRelated
         private bool fadingOut = true;
 
         [SerializeField] private List<Color> tileColors;
+
+        //MOVING RELATED
+        private bool _isMovingTile;
+        private Vector3 _targetPos, _prevPos, tempPos;
 
         void Start()
         {
@@ -42,10 +47,23 @@ namespace _Hop._Scripts.ElementRelated
             SetColor(col);
         }
 
-        public void SetColor(Color color) {
+        public void SetColor(Color color)
+        {
             _visualMat.color = color;
             //else _visualMat.color = Color.cyan;
         }
+
+        public IEnumerator EnableMovement()
+        {
+            float scaleX = transform.localScale.x;
+            transform.DOMoveX(transform.position.x - scaleX, .2f);
+            yield return new WaitForSeconds(0.35f);
+            _prevPos = transform.position;
+            _targetPos = transform.position + Vector3.right * scaleX * 2;
+            _isMovingTile = true;
+            Debug.Log("MOVING");
+        }
+
 
         private void Update()
         {
@@ -60,6 +78,18 @@ namespace _Hop._Scripts.ElementRelated
             {
                 currentLerpTime = 0f;
                 fadingOut = !fadingOut;
+            }
+
+            if (_isMovingTile)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, _targetPos, Time.deltaTime * 5f);
+
+                if (Vector3.Distance(transform.position, _targetPos) < 0.1f)
+                {
+                    tempPos = _targetPos;
+                    _targetPos = _prevPos;
+                    _prevPos = tempPos;
+                }
             }
         }
 
